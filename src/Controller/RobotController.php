@@ -5,12 +5,20 @@ namespace App\Controller;
 use App\Entity\Robot;
 use App\Form\RobotType;
 use App\Repository\RobotRepository;
+use App\Service\Robot\RobotFightService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Dto\Request\RobotFightRequestDto;
+use Doctrine\ORM\EntityNotFoundException;
+use App\Exception\EqualRobotPowerException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[Route('/robot')]
 class RobotController extends AbstractController
@@ -20,11 +28,10 @@ class RobotController extends AbstractController
     {
         $queryBuilder = $robotRepository->createQueryBuilder('r');
 
-        // Pagination
         $pagination = $paginator->paginate(
-            $queryBuilder, // query or array of queries
-            $request->query->getInt('page', 1), // current page number
-            10 // limit per page
+            $queryBuilder, 
+            $request->query->getInt('page', 1), 
+            10 
         );
 
         return $this->render('robot/index.html.twig', [
@@ -52,7 +59,7 @@ class RobotController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_robot_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_robot_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Robot $robot): Response
     {
         return $this->render('robot/show.html.twig', [
@@ -78,7 +85,7 @@ class RobotController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_robot_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_robot_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Robot $robot, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$robot->getId(), $request->getPayload()->getString('_token'))) {
@@ -88,5 +95,26 @@ class RobotController extends AbstractController
         }
 
         return $this->redirectToRoute('app_robot_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/fight', name: 'app_robot_fight', methods: ['POST'])]
+    public function fight(
+        #[MapRequestPayload] RobotFightRequestDto $dto, RobotFightService $robotFightService): JsonResponse
+    {
+        try {
+            $robot = $robotFightService->getStrongerRobot($dto);
+        }
+        catch(EntityNotFoundException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+        catch(EqualRobotPowerException $e) {
+            return new JsonResponse([
+                'message' => $e->getMessage()
+            ], 400);
+        }
+
+        return $this->json([
+            'robot' => $robot
+        ]);
     }
 }
