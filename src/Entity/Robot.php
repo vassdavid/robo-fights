@@ -9,6 +9,7 @@ use App\Repository\RobotRepository;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteableEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RobotRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false, hardDelete: false)]
@@ -22,16 +23,24 @@ class Robot
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\NotNull()]
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\Length(min: 2, max: 255)]
     private ?string $name = null;
 
+    #[Assert\NotNull()]
     #[ORM\Column(enumType: RobotTypes::class)]
     private ?RobotTypes $type = null;
 
-    #[ORM\Column]
+    #[Assert\NotNull()]
+    #[Assert\Range(min: 0, max: 100)]
+    #[Assert\Type('integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $power = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\NotNull()]
+    #[Assert\Length(min: 5, max: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $imageUrl = null;
 
     public function getId(): ?int
