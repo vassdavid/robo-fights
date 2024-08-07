@@ -34,12 +34,6 @@ class Robot
     #[ORM\Column(length: 255)]
     private ?string $imageUrl = null;
 
-    /**
-     * @var \DateTime|null
-     */
-    #[ORM\Column(name: 'deletedAt', type: Types::DATETIME_MUTABLE, nullable: true)]
-    protected ?\DateTime $deletedAt = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -89,24 +83,6 @@ class Robot
     public function setImageUrl(string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of deletedAt
-     */
-    public function getDeletedAt(): ?\DateTime
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Set the value of deletedAt
-     */
-    public function setDeletedAt(?\DateTime $deletedAt): self
-    {
-        $this->deletedAt = $deletedAt;
 
         return $this;
     }
