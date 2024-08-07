@@ -2,13 +2,21 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Enum\Entity\RobotTypes;
-use App\Repository\RobotRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\RobotRepository;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteableEntity;
 
 #[ORM\Entity(repositoryClass: RobotRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false, hardDelete: false)]
 class Robot
 {
+    use TimestampableEntity;
+    use SoftDeleteableEntity;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,6 +33,12 @@ class Robot
 
     #[ORM\Column(length: 255)]
     private ?string $imageUrl = null;
+
+    /**
+     * @var \DateTime|null
+     */
+    #[ORM\Column(name: 'deletedAt', type: Types::DATETIME_MUTABLE, nullable: true)]
+    protected ?\DateTime $deletedAt = null;
 
     public function getId(): ?int
     {
@@ -75,6 +89,24 @@ class Robot
     public function setImageUrl(string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deletedAt
+     */
+    public function getDeletedAt(): ?\DateTime
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Set the value of deletedAt
+     */
+    public function setDeletedAt(?\DateTime $deletedAt): self
+    {
+        $this->deletedAt = $deletedAt;
 
         return $this;
     }
