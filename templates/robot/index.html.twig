@@ -4,7 +4,7 @@
 
 {% block body %}
     <h1>Robot index</h1>
-
+    <a class="btn btn-success" href="{{ path('app_robot_new') }}">+ Create new robot</a>
     <table class="table">
         <thead>
             <tr>
@@ -12,10 +12,10 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Power</th>
-                <th>ImageUrl</th>
+                <th>Image</th>
                 <th>CreatedAt</th>
                 <th>UpdatedAt</th>
-                <th>actions</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -25,17 +25,25 @@
                 <td>{{ robot.name }}</td>
                 <td>{{ robot.type.value }}</td>
                 <td>{{ robot.power }}</td>
-                <td><img width="150" height="150" src="{{ robot.imageUrl }}"/></td>
+                <td><img width="100" height="100" src="{{ robot.imageUrl }}"/></td>
                 <td>{{ robot.createdAt ? robot.createdAt|date('Y.m.d. H:i:s', 'Europe/Budapest')  : '' }}</td>
                 <td>{{ robot.updatedAt ? robot.updatedAt|date('Y.m.d. H:i:s', 'Europe/Budapest')  : '' }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ path('app_robot_show', {'id': robot.id}) }}">show</a>
-                    <a class="btn btn-warning" href="{{ path('app_robot_edit', {'id': robot.id}) }}">edit</a>
+                    <a class="btn btn-primary m-1" href="{{ path('app_robot_show', {'id': robot.id}) }}">Show</a>
+                    <a class="btn btn-warning m-1" href="{{ path('app_robot_edit', {'id': robot.id}) }}">Edit</a>
+                    <button 
+                        class="btn btn-success add-to-fight m-1"
+                        data-id="{{ robot.id }}"
+                        data-name="{{ robot.name }}"
+                        data-image-url="{{ robot.imageUrl }}"
+                        onclick="addRobotToLocalStorage(event)"
+                    >Add to fight</button>
+                    {{ include('robot/_delete_form.html.twig') }}
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="9">no records found</td>
+                <td colspan="9">No records found</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -44,5 +52,36 @@
         {{ knp_pagination_render(pagination) }}
     </div>
 
-    <a href="{{ path('app_robot_new') }}">Create new</a>
+
+<script>
+function addRobotToLocalStorage(event) {
+  const button = event.currentTarget;
+  const robotId = button.getAttribute('data-id');
+  const robotName = button.getAttribute('data-name');
+  const robotImageUrl = button.getAttribute('data-image-url');
+
+  const robots = JSON.parse(localStorage.getItem('robots')) || [];
+  if (robots.length >= 2) {
+    alert('You can only add up to 2 robots.');
+    return;
+  }
+  const isRobotAlreadyAdded = robots.some(robot => robot.id === robotId);
+
+  if (isRobotAlreadyAdded) {
+    alert('This robot is already added.');
+    return;
+  }
+
+  robots.push({
+    id: robotId,
+    name: robotName,
+    imageUrl: robotImageUrl
+  });
+
+
+  localStorage.setItem('robots', JSON.stringify(robots));
+
+  window.dispatchEvent(new Event('storage'));
+}
+</script>
 {% endblock %}

@@ -6,8 +6,9 @@
     <h1>Edit Robot</h1>
 
     {{ include('robot/_form.html.twig', {'button_label': 'Update'}) }}
+    <div class="d-flex flex-row mt-2">
+        <a href="{{ path('app_robot_index') }}" class="btn btn-info m-1">Back to list</a>
 
-    <a href="{{ path('app_robot_index') }}" class="btn btn-info mt-2">Back to list</a>
-
-    {{ include('robot/_delete_form.html.twig') }}
+        {{ include('robot/_delete_form.html.twig') }}
+    </div>
 {% endblock %}

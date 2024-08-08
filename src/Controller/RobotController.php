@@ -15,23 +15,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-#[Route('/robot')]
+
 class RobotController extends AbstractController
 {
     #[Route('/', name: 'app_robot_index', methods: ['GET'])]
     public function index(Request $request, RobotRepository $robotRepository, PaginatorInterface $paginator): Response
     {
-        $queryBuilder = $robotRepository->createQueryBuilder('r');
+        $queryBuilder = $robotRepository->createQueryBuilder('r')
+            ->where('r.deletedAt IS NULL')
+            ->orderBy('r.id', 'ASC');
 
         $pagination = $paginator->paginate(
             $queryBuilder, 
             $request->query->getInt('page', 1), 
-            10 
         );
 
         return $this->render('robot/index.html.twig', [
