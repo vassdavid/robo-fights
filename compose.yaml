@@ -13,14 +13,18 @@ services:
       retries: 5
       start_period: 60s
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
+      - robot_database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       #- ./docker/db/data:/var/lib/postgresql/data:rw
     ports:
       - ${POSTGRES_PORT}:5432
+    networks:
+      - default
 ###< doctrine/doctrine-bundle ###
 
 volumes:
 ###> doctrine/doctrine-bundle ###
-  database_data:
+  robot_database_data:
 ###< doctrine/doctrine-bundle ###
+networks:
+  default:
