@@ -105,7 +105,9 @@ class RobotController extends AbstractController
             $robot = $robotFightService->getStrongerRobot($dto);
         }
         catch(EntityNotFoundException $e) {
-            throw new BadRequestHttpException($e->getMessage());
+            return new JsonResponse([
+                'message' => $e->getMessage()
+            ], 400);
         }
         catch(EqualRobotPowerException $e) {
             return new JsonResponse([

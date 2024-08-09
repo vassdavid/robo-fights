@@ -84,6 +84,7 @@ export default {
         this.comparisonResult = data.robot;
       })
       .catch(error => {
+        this.errorMessage = 'There was a problem with the request. Please check your internet connection or try again later.'
         console.error('Error:', error);
       });
     }
